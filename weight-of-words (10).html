@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weight of Words</title>
+  <link href="https://db.onlinewebfonts.com/c/0000f72cb89d7fa508eac49a3c93c421?family=Hydrophilia+Liquid" rel="stylesheet" type="text/css"/>
+  <link rel="stylesheet" href="https://use.typekit.net/mau8ddc.css">
+  <style>
+    @font-face {
+      font-family: 'HsGultokki';
+      src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2210-2@1.0/HSGooltokki.woff2') format('woff2');
+      font-weight: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: "Maison Neue Mono";
+      src: url("https://db.onlinewebfonts.com/t/63467b9cbd4a4d7eafb5e64946ecaa18.eot");
+      src: url("https://db.onlinewebfonts.com/t/63467b9cbd4a4d7eafb5e64946ecaa18.eot?#iefix")format("embedded-opentype"),
+      url("https://db.onlinewebfonts.com/t/63467b9cbd4a4d7eafb5e64946ecaa18.woff2")format("woff2"),
+      url("https://db.onlinewebfonts.com/t/63467b9cbd4a4d7eafb5e64946ecaa18.woff")format("woff"),
+      url("https://db.onlinewebfonts.com/t/63467b9cbd4a4d7eafb5e64946ecaa18.ttf")format("truetype"),
+      url("https://db.onlinewebfonts.com/t/63467b9cbd4a4d7eafb5e64946ecaa18.svg#Maison Neue Mono")format("svg");
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --white: #FFFFFF;
+      --black: #000000;
+      --text-muted: #888888;
+      --border-color: #333333;
+      --card-bg: #111111;
+    }
+
+    body {
+      font-family: 'Hydrophilia Liquid', sans-serif;
+      background: var(--black);
+      overflow-x: hidden;
+      cursor: default;
+    }
+
+    .screen {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .screen.active {
+      display: flex;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* ── TITLE SCREEN ── */
+    .title {
+      font-family: "hydrophilia-liquid", sans-serif;
+      font-weight: 400;
+      font-size: 2.5rem;
+      color: var(--white);
+      text-align: center;
+      padding: 0 20px;
+      margin-bottom: 3rem;
+    }
+
+    .btn {
+      font-family: 'Hydrophilia Liquid', sans-serif;
+      font-size: 1rem;
+      padding: 15px 35px;
+      background: var(--white);
+      color: var(--black);
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      margin: 4px;
+    }
+    .btn:hover  { opacity: 0.7; }
+    .btn:active { opacity: 0.5; }
+
+    .button-group {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    /* ── WRITE SCREEN ── */
+    #write-screen { background: var(--black); }
+
+    .write-container {
+      max-width: 600px;
+      width: 90%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .step-counter {
+      font-family: "Maison Neue Mono", monospace;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 18px;
+      letter-spacing: 0.05em;
+    }
+
+    .prompt-label {
+      font-family: 'HsGultokki', sans-serif;
+      font-size: 1.3rem;
+      color: var(--white);
+      margin-bottom: 22px;
+      line-height: 1.5;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .prompt-en {
+      font-family: "Maison Neue Mono", monospace;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .prompt-ko {
+      font-family: 'HsGultokki', sans-serif;
+      font-size: 1.3rem;
+      color: var(--white);
+    }
+
+    .message-input {
+      font-family: "Maison Neue Mono", monospace;
+      font-size: 1rem;
+      padding: 20px;
+      border: 2px solid var(--border-color);
+      background: var(--card-bg);
+      width: 100%;
+      min-height: 160px;
+      outline: none;
+      resize: vertical;
+      margin-bottom: 12px;
+      color: var(--white);
+    }
+    .message-input::placeholder { color: var(--text-muted); opacity: 0.8; }
+    .message-input:focus { border-color: #555; }
+
+    .char-count {
+      text-align: right;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      margin-bottom: 20px;
+    }
+
+    .write-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .btn-ghost {
+      font-family: 'Hydrophilia Liquid', sans-serif;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 8px 0;
+      transition: color 0.2s;
+    }
+    .btn-ghost:hover { color: var(--white); }
+
+    /* progress dots */
+    .progress-dots {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 28px;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--border-color);
+      transition: background 0.3s;
+    }
+
+    .dot.done     { background: var(--white); }
+    .dot.current  { background: var(--white); outline: 1px solid #555; outline-offset: 2px; }
+
+    /* ── DONE SCREEN ── */
+    #done-screen { background: var(--black); }
+
+    .done-title {
+      font-family: "hydrophilia-liquid", sans-serif;
+      font-size: 1.8rem;
+      color: var(--white);
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .done-sub {
+      font-family: "Maison Neue Mono", monospace;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 2.5rem;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    /* ── COLLECTION SCREEN ── */
+    #collection-screen {
+      background: var(--black);
+      overflow-y: auto;
+      padding: 40px 20px;
+      justify-content: flex-start;
+    }
+
+    .collection-header {
+      width: 100%;
+      max-width: 1200px;
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .collection-title {
+      font-family: 'Hydrophilia Liquid', sans-serif;
+      font-size: 2rem;
+      color: var(--white);
+      font-weight: normal;
+    }
+
+    .back-btn {
+      position: fixed;
+      top: 20px; left: 20px;
+      z-index: 1000;
+    }
+
+    .messages-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 30px;
+      width: 100%;
+      max-width: 1200px;
+      padding-bottom: 60px;
+    }
+
+    .message-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      padding: 25px;
+      transition: opacity 0.2s;
+      cursor: pointer;
+    }
+    .message-card:hover { opacity: 0.8; }
+
+    .message-card-prompt {
+      font-family: 'HsGultokki', sans-serif;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .message-text {
+      font-family: "Maison Neue Mono", monospace;
+      font-size: 0.95rem;
+      color: var(--white);
+      line-height: 1.6;
+      margin-bottom: 15px;
+      word-wrap: break-word;
+      max-height: 120px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .message-text::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 100%; height: 25px;
+      background: linear-gradient(transparent, var(--card-bg));
+    }
+
+    .message-meta {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    /* ── MODAL ── */
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.95);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 20px;
+    }
+    .modal.active { display: flex; }
+
+    .modal-content {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      padding: 40px;
+      max-width: 650px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 15px; right: 15px;
+      background: transparent; border: none;
+      color: var(--white);
+      font-size: 1.8rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      font-family: 'Hydrophilia Liquid', sans-serif;
+      line-height: 1;
+    }
+    .modal-close:hover { opacity: 0.6; }
+
+    .modal-prompt {
+      font-family: 'HsGultokki', sans-serif;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .modal-message {
+      font-family: "Maison Neue Mono", monospace;
+      font-size: 1.1rem;
+      color: var(--white);
+      line-height: 1.7;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .modal-meta {
+      margin-top: 25px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+    .modal-meta div + div { margin-top: 8px; }
+
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+      font-size: 1.2rem;
+    }
+
+    .fading-1 { opacity: 0.95; }
+    .fading-2 { opacity: 0.85; }
+    .fading-3 { opacity: 0.7;  }
+    .fading-4 { opacity: 0.55; }
+    .fading-5 { opacity: 0.4;  }
+    .fading-6 { opacity: 0.25; }
+    .fading-7 { opacity: 0.1;  }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+      .title { font-size: 2rem; }
+      .prompt-label { font-size: 1.1rem; }
+      .messages-container { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TITLE SCREEN -->
+  <div id="title-screen" class="screen active">
+    <h1 class="title">Weight of Words</h1>
+    <div class="button-group">
+      <button class="btn" onclick="startSession()">start</button>
+      <button class="btn" onclick="switchScreen('collection-screen'); loadMessages()">collection</button>
+    </div>
+  </div>
+
+  <!-- WRITE SCREEN (sequential prompts) -->
+  <div id="write-screen" class="screen">
+    <div class="write-container">
+      <div class="progress-dots" id="progress-dots"></div>
+      <div class="step-counter" id="step-counter"></div>
+      <p class="prompt-label" id="prompt-label"></p>
+      <textarea
+        id="message-input"
+        class="message-input"
+        placeholder="write here..."
+        maxlength="1000"
+      ></textarea>
+      <div class="char-count"><span id="char-count">0</span>/1000</div>
+      <div class="write-buttons">
+        <button class="btn-ghost" id="back-btn-write" onclick="goPrev()">← back</button>
+        <button class="btn" id="next-btn" onclick="goNext()">next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DONE SCREEN -->
+  <div id="done-screen" class="screen">
+    <h2 class="done-title">all words have been collected.</h2>
+    <div class="button-group">
+      <button class="btn" onclick="switchScreen('collection-screen'); loadMessages()">collection</button>
+      <button class="btn" onclick="switchScreen('title-screen')">home</button>
+    </div>
+  </div>
+
+  <!-- COLLECTION SCREEN -->
+  <div id="collection-screen" class="screen">
+    <button class="btn back-btn" onclick="switchScreen('title-screen')">← back</button>
+    <div class="collection-header">
+      <h2 class="collection-title">Cleared in 30 days</h2>
+    </div>
+    <div id="messages-container" class="messages-container">
+      <div class="empty-state">loading messages...</div>
+    </div>
+  </div>
+
+  <!-- MODAL -->
+  <div id="message-modal" class="modal" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal()">×</button>
+      <div id="modal-prompt" class="modal-prompt"></div>
+      <div id="modal-message" class="modal-message"></div>
+      <div id="modal-meta" class="modal-meta"></div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyA8hT35rl_8uO27LoBSAWjU89wRtF4TxL4",
+      authDomain: "unsent-c49a2.firebaseapp.com",
+      projectId: "unsent-c49a2",
+      storageBucket: "unsent-c49a2.firebasestorage.app",
+      messagingSenderId: "736167237909",
+      appId: "1:736167237909:web:3792aaa732ebae0430311c"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const prompts = [
+      { en: "What is the word you say the most?",             ko: "너가 가장 많이 하는 말이 뭐야?" },
+      { en: "What is the word you love the most?",            ko: "너가 가장 좋아하는 말이 뭐야?" },
+      { en: "What is the most memorable word you've heard?",  ko: "너가 들은 말 중에 가장 기억에 남는 말이 뭐야?" },
+      { en: "What is the most memorable word you've said?",   ko: "너가 한 말 중에 가장 기억에 남는 말이 뭐야?" },
+      { en: "The word you most want to hear",                 ko: "너가 가장 듣고 싶은 말" },
+      { en: "The word you regret the most",                   ko: "너가 가장 후회하는 말" },
+      { en: "The word you most want to say",                  ko: "너가 가장 하고 싶은 말" },
+    ];
+
+    // answers[i] = text typed for prompts[i]
+    let answers = new Array(prompts.length).fill('');
+    let currentStep = 0;
+
+    const messageInput = document.getElementById('message-input');
+    const charCountEl  = document.getElementById('char-count');
+
+    messageInput.addEventListener('input', () => {
+      charCountEl.textContent = messageInput.value.length;
+      answers[currentStep] = messageInput.value;
+    });
+
+    function switchScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function startSession() {
+      answers = new Array(prompts.length).fill('');
+      currentStep = 0;
+      buildDots();
+      renderStep();
+      switchScreen('write-screen');
+    }
+
+    function buildDots() {
+      const container = document.getElementById('progress-dots');
+      container.innerHTML = '';
+      prompts.forEach((_, i) => {
+        const dot = document.createElement('div');
+        dot.className = 'dot';
+        dot.id = `dot-${i}`;
+        container.appendChild(dot);
+      });
+    }
+
+    function renderStep() {
+      // update dot states
+      prompts.forEach((_, i) => {
+        const dot = document.getElementById(`dot-${i}`);
+        dot.className = 'dot';
+        if (i < currentStep) dot.classList.add('done');
+        else if (i === currentStep) dot.classList.add('current');
+      });
+
+      document.getElementById('step-counter').textContent = `${currentStep + 1} / ${prompts.length}`;
+      const p = prompts[currentStep];
+      document.getElementById('prompt-label').innerHTML =
+        `<span class="prompt-en">${escapeHtml(p.en)}</span><span class="prompt-ko">${escapeHtml(p.ko)}</span>`;
+
+      // restore saved answer
+      messageInput.value = answers[currentStep];
+      charCountEl.textContent = messageInput.value.length;
+      messageInput.focus();
+
+      // back button: on step 0 goes to title
+      const backBtn = document.getElementById('back-btn-write');
+      backBtn.textContent = currentStep === 0 ? '← home' : '← back';
+
+      // next/send button
+      const nextBtn = document.getElementById('next-btn');
+      nextBtn.textContent = currentStep === prompts.length - 1 ? 'send all →' : 'next →';
+    }
+
+    function goPrev() {
+      answers[currentStep] = messageInput.value;
+      if (currentStep === 0) {
+        switchScreen('title-screen');
+        return;
+      }
+      currentStep--;
+      renderStep();
+    }
+
+    async function goNext() {
+      answers[currentStep] = messageInput.value;
+
+      if (currentStep < prompts.length - 1) {
+        currentStep++;
+        renderStep();
+        return;
+      }
+
+      // Last step — submit all answers
+      await submitAll();
+    }
+
+    async function submitAll() {
+      const nextBtn = document.getElementById('next-btn');
+      nextBtn.textContent = 'sending...';
+      nextBtn.disabled = true;
+
+      let location = 'somewhere in the world';
+      try {
+        const pos = await new Promise((res, rej) =>
+          navigator.geolocation.getCurrentPosition(res, rej, { timeout: 5000 })
+        );
+        location = `${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`;
+      } catch (e) {}
+
+      // Build one document with all answers as an array
+      const entries = prompts.map((prompt, i) => ({
+        promptEn: prompt.en,
+        promptKo: prompt.ko,
+        text: answers[i].trim()
+      }));
+
+      try {
+        // Get next writer number atomically
+        const counterRef = db.collection('meta').doc('counter');
+        let writerNum = 1;
+        await db.runTransaction(async tx => {
+          const doc = await tx.get(counterRef);
+          writerNum = doc.exists ? (doc.data().count + 1) : 1;
+          tx.set(counterRef, { count: writerNum });
+        });
+
+        await db.collection('sessions').add({
+          entries,
+          timestamp: Date.now(),
+          location,
+          writerNum
+        });
+        switchScreen('done-screen');
+      } catch (e) {
+        console.error('submitAll error:', e);
+        nextBtn.textContent = 'send all →';
+        nextBtn.disabled = false;
+        const errDiv = document.createElement('div'); errDiv.style.cssText = 'color:#ff6b6b;font-family:monospace;font-size:0.85rem;margin-top:16px;padding:12px;border:1px solid #ff6b6b;'; errDiv.textContent = 'Error: ' + e.message; document.querySelector('.write-container').appendChild(errDiv);
+      }
+    }
+
+    /* ── COLLECTION ── */
+    async function loadMessages() {
+      const container = document.getElementById('messages-container');
+      container.innerHTML = '<div class="empty-state">loading messages...</div>';
+      try {
+        const now = Date.now();
+        const oneMonthAgo = now - 30 * 24 * 60 * 60 * 1000;
+
+        // Load from 'sessions' collection (new grouped format)
+        const sessSnap = await db.collection('sessions')
+          .where('timestamp', '>', oneMonthAgo)
+          .orderBy('timestamp', 'desc')
+          .get();
+
+        // Also load from old 'messages' collection (legacy individual format)
+        const msgSnap = await db.collection('messages')
+          .where('timestamp', '>', oneMonthAgo)
+          .orderBy('timestamp', 'desc')
+          .get();
+
+        const sessions = [];
+
+        sessSnap.forEach(doc => {
+          const d = doc.data();
+          d.id = doc.id;
+          d.age = now - d.timestamp;
+          d._type = 'session';
+          sessions.push(d);
+        });
+
+        // Group legacy messages into fake session objects by proximity (within 10s = same person)
+        const legacyMsgs = [];
+        msgSnap.forEach(doc => {
+          const d = doc.data();
+          d.id = doc.id;
+          d.age = now - d.timestamp;
+          d._type = 'legacy';
+          legacyMsgs.push(d);
+        });
+
+        // Group legacy messages: messages within 60s of each other = same session
+        const legacyGroups = [];
+        legacyMsgs.sort((a, b) => a.timestamp - b.timestamp);
+        legacyMsgs.forEach(msg => {
+          const last = legacyGroups[legacyGroups.length - 1];
+          if (last && Math.abs(msg.timestamp - last.timestamp) < 60000 && msg.location === last.location) {
+            last._msgs.push(msg);
+          } else {
+            legacyGroups.push({ ...msg, _msgs: [msg] });
+          }
+        });
+
+        // Convert legacy groups to session format
+        legacyGroups.forEach(g => {
+          sessions.push({
+            _type: 'legacy',
+            timestamp: g.timestamp,
+            age: g.age,
+            location: g.location,
+            entries: g._msgs.map(m => ({
+              promptEn: m.promptEn || '',
+              promptKo: m.prompt || '',
+              text: m.text || ''
+            }))
+          });
+        });
+
+        // Sort all by timestamp desc
+        sessions.sort((a, b) => b.timestamp - a.timestamp);
+
+        if (sessions.length === 0) {
+          container.innerHTML = '<div class="empty-state">no messages yet. be the first to share something...</div>';
+          return;
+        }
+
+        container.innerHTML = '';
+        sessions.forEach((s, i) => container.appendChild(createSessionCard(s, i, sessions.length)));
+
+        // Clean up old sessions
+        const oldSess = await db.collection('sessions').where('timestamp', '<', oneMonthAgo).get();
+        oldSess.forEach(doc => doc.ref.delete());
+        const oldMsgs = await db.collection('messages').where('timestamp', '<', oneMonthAgo).get();
+        oldMsgs.forEach(doc => doc.ref.delete());
+
+      } catch (e) {
+        console.error('loadMessages error:', e);
+        container.innerHTML = `<div class="empty-state">failed to load: ${e.message}</div>`;
+      }
+    }
+
+    function createSessionCard(session, index, total) {
+      const card = document.createElement('div');
+      card.className = 'message-card';
+      const fading = Math.min(Math.floor(session.age / (4.3 * 86400000)) + 1, 7);
+      card.classList.add(`fading-${fading}`);
+
+      // Use stored writerNum if available, otherwise fall back to position
+      if (!session.writerNum) session.writerNum = total - index;
+      const num = String(session.writerNum).padStart(3, '0');
+
+      card.innerHTML = `
+        <div style="font-family:'Maison Neue Mono',monospace;font-size:2rem;color:var(--white);letter-spacing:0.05em;">#${num}</div>
+        <div class="message-meta" style="margin-top:16px;">
+          <span>${getTimeAgo(session.timestamp)}</span>
+        </div>
+      `;
+      card.onclick = () => openSessionModal(session);
+      return card;
+    }
+
+    function openSessionModal(session) {
+      const num = session.writerNum ? String(session.writerNum).padStart(3, '0') : '???';
+      document.getElementById('modal-prompt').innerHTML =
+        `<span style="font-family:'Maison Neue Mono',monospace;font-size:1.1rem;color:var(--white);">#${num}</span>`;
+
+      // Build full Q&A list in modal
+      const entries = session.entries || [];
+      let html = '';
+      entries.forEach((e, i) => {
+        html += `
+          <div style="padding:10px 0;${i > 0 ? 'border-top:1px solid var(--border-color);' : ''}">
+            <div style="font-size:0.68rem;color:#555;font-family:'Maison Neue Mono',monospace;letter-spacing:0.03em;margin-bottom:1px;">${escapeHtml(e.promptEn)}</div>
+            <div style="font-family:'HsGultokki',sans-serif;font-size:0.85rem;color:#666;margin-bottom:5px;">${escapeHtml(e.promptKo)}</div>
+            <div style="font-family:'Maison Neue Mono',monospace;font-size:0.92rem;color:${e.text ? 'var(--white)' : '#444'};line-height:1.3;white-space:pre-wrap;">${e.text ? escapeHtml(e.text) : '—'}</div>
+          </div>
+        `;
+      });
+      document.getElementById('modal-message').innerHTML = html;
+
+      const date = new Date(session.timestamp);
+      const fmtDate = date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      const fmtTime = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+      document.getElementById('modal-meta').innerHTML = `
+        <div>${fmtTime}, ${fmtDate}</div>
+        <div>from ${session.location || 'somewhere in the world'}</div>
+      `;
+      document.getElementById('message-modal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('message-modal').classList.remove('active');
+    }
+
+    function getTimeAgo(ts) {
+      const d = Date.now() - ts;
+      const m = Math.floor(d/60000), h = Math.floor(d/3600000), day = Math.floor(d/86400000);
+      if (day > 0) return `${day} day${day !== 1 ? 's' : ''} ago`;
+      if (h > 0)   return `${h} hour${h !== 1 ? 's' : ''} ago`;
+      if (m > 0)   return `${m} minute${m !== 1 ? 's' : ''} ago`;
+      return 'just now';
+    }
+
+    function escapeHtml(text) {
+      const d = document.createElement('div');
+      d.textContent = text;
+      return d.innerHTML;
+    }
+
+    let refreshInterval;
+    new MutationObserver(() => {
+      const cs = document.getElementById('collection-screen');
+      if (cs.classList.contains('active')) {
+        if (!refreshInterval) refreshInterval = setInterval(loadMessages, 30000);
+      } else {
+        if (refreshInterval) { clearInterval(refreshInterval); refreshInterval = null; }
+      }
+    }).observe(document.getElementById('collection-screen'), { attributes: true, attributeFilter: ['class'] });
+  </script>
+</body>
+</html>
