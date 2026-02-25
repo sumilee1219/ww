@@ -463,10 +463,14 @@
     const messageInput = document.getElementById('message-input');
     const charCountEl  = document.getElementById('char-count');
 
-    messageInput.addEventListener('input', () => {
-      charCountEl.textContent = messageInput.value.length;
-      answers[currentStep] = messageInput.value;
-    });
+messageInput.addEventListener('input', () => {
+  charCountEl.textContent = messageInput.value.length;
+  answers[currentStep] = messageInput.value;
+  const nextBtn = document.getElementById('next-btn');
+  nextBtn.disabled = messageInput.value.trim().length === 0;
+  nextBtn.style.opacity = messageInput.value.trim().length === 0 ? '0.3' : '1';
+  nextBtn.style.cursor = messageInput.value.trim().length === 0 ? 'not-allowed' : 'pointer';
+});
 
     function switchScreen(id) {
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -516,8 +520,12 @@
       backBtn.textContent = currentStep === 0 ? '← home' : '← back';
 
       // next/send button
-      const nextBtn = document.getElementById('next-btn');
-      nextBtn.textContent = currentStep === prompts.length - 1 ? 'send all →' : 'next →';
+const nextBtn = document.getElementById('next-btn');
+nextBtn.textContent = currentStep === prompts.length - 1 ? 'send all →' : 'next →';
+const isEmpty = messageInput.value.trim().length === 0;
+nextBtn.disabled = isEmpty;
+nextBtn.style.opacity = isEmpty ? '0.3' : '1';
+nextBtn.style.cursor = isEmpty ? 'not-allowed' : 'pointer';
     }
 
     function goPrev() {
