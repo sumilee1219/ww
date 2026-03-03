@@ -664,7 +664,7 @@ const { data, error } = await db
           <div style="padding:${i > 0 ? '0px' : '0px'} 0 0px 0;">
             <div style="border:1px solid var(--border-color);padding:0px 10px;margin-bottom:10px;background:rgba(27,34,61,0.06);">
               <div style="font-size:0.68rem;color:#212B45;font-family:'Maison Neue Mono',monospace;letter-spacing:0.03em;margin-bottom:0px;">${escapeHtml(e.promptEn)}</div>
-              <div style="font-family:'HsGultokki',sans-serif;font-size:0.85rem;color:#212B45;">${escapeHtml(e.promptKo)}</div>
+              <div style="font-family:'HsGultokki',sans-serif;font-size:0.85rem;color:#212B45;line-height:1;">${escapeHtml(e.promptKo)}</div>
             </div>
             <div style="font-family:'Maison Neue Mono',monospace;font-size:0.92rem;color:${e.text ? 'var(--blue)' : '#212B45'};line-height:1.0;white-space:pre-wrap;padding:0 0px;">${e.text ? escapeHtml(e.text) : '—'}</div>
           </div>
