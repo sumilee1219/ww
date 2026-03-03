@@ -28,7 +28,7 @@
 
     :root {
       --white: #FFFEFC;
-      --blue: #0D1333;
+      --blue: #212B45;
       --text-muted: #32395a;
       --border-color: #333333;
       --card-bg: #FFFEF2;
@@ -642,7 +642,7 @@ const { data, error } = await db
       const num = String(session.writerNum).padStart(3, '0');
 
       card.innerHTML = `
-        <div style="font-family:'Maison Neue Mono',monospace;font-size:2rem;color:var(--white);letter-spacing:0.05em;">#${num}</div>
+        <div style="font-family:'Maison Neue Mono',monospace;font-size:2rem;color:var(--blue);letter-spacing:0.05em;">#${num}</div>
         <div class="message-meta" style="margin-top:16px;">
           <span>${getTimeAgo(session.timestamp)}</span>
         </div>
@@ -662,9 +662,9 @@ const { data, error } = await db
       entries.forEach((e, i) => {
         html += `
           <div style="padding:10px 0;${i > 0 ? 'border-top:1px solid var(--border-color);' : ''}">
-            <div style="font-size:0.68rem;color:#0D1333;font-family:'Maison Neue Mono',monospace;letter-spacing:0.03em;margin-bottom:1px;">${escapeHtml(e.promptEn)}</div>
-            <div style="font-family:'HsGultokki',sans-serif;font-size:0.85rem;color:#0D1333;margin-bottom:3px;">${escapeHtml(e.promptKo)}</div>
-            <div style="font-family:'Maison Neue Mono',monospace;font-size:0.92rem;color:${e.text ? 'var(--blue)' : '#0D1333'};line-height:1.0;white-space:pre-wrap;">${e.text ? escapeHtml(e.text) : '—'}</div>
+            <div style="font-size:0.68rem;color:#212B45;font-family:'Maison Neue Mono',monospace;letter-spacing:0.03em;margin-bottom:1px;">${escapeHtml(e.promptEn)}</div>
+            <div style="font-family:'HsGultokki',sans-serif;font-size:0.85rem;color:#212B45;margin-bottom:2px;">${escapeHtml(e.promptKo)}</div>
+            <div style="font-family:'Maison Neue Mono',monospace;font-size:0.92rem;color:${e.text ? 'var(--blue)' : '#212B45'};line-height:1.0;white-space:pre-wrap;">${e.text ? escapeHtml(e.text) : '—'}</div>
           </div>
         `;
       });
